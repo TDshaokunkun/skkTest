@@ -1,0 +1,55 @@
+Build phase:
+  stages:
+    Docker Build:
+      when:
+        - develop
+        - qa
+        - prd
+      type: docker_build
+      app_images:
+        - dockerfile: Dockerfile
+          app_name: sc-case-stream
+    Docker Push:
+      when:
+        - develop
+        - qa
+        - prd
+      type: docker_push
+
+Deploy phase:
+  stg:
+    deploy mode: automatic
+    stages:
+      Deploy to Staging:
+        when:
+          - develop
+        type: deploy_kubernetes
+        td-regions:
+          - td-us-1
+        app_name:
+          - sc-case-stream
+  qa:
+    deploy mode: manual
+    deploy_manual_timeout: 900
+    stages:
+      Deploy to QA:
+        when:
+          - qa
+        type: deploy_kubernetes
+        td-regions:
+          - td-us-1
+        app_name:
+          - sc-case-stream
+
+  prd:
+    deploy mode: manual
+    deploy_manual_timeout: 900
+    stages:
+      Deploy to prd:
+        when:
+          - prd
+        type: deploy_kubernetes
+        td-regions:
+          - td-us-1
+        app_name:
+          - sc-case-stream
